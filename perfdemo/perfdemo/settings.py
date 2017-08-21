@@ -127,6 +127,66 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'base': {
+            'format': '%(asctime)s %(levelname)s %(name)s %(pathname)s:%(lineno)d'
+                      ' %(funcName)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout',
+            'formatter': 'base'
+        },
+        'email-admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': False,
+        },
+    },
+    'loggers': {
+        'perfdemo': {
+            'handlers': ['console', 'email-admins'],
+            'propagate': True,
+            'level': 'INFO'
+        },
+        'django': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'INFO'
+        },
+        'django.request': {
+            'handlers': ['console', 'email-admins'],
+            'propagate': False,
+            'level': 'WARNING'
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'WARNING'
+        },
+        'celery': {
+            'handlers': ['console', 'email-admins'],
+            'propagate': True,
+            'level': 'INFO'
+        },
+        'celery.task': {
+            'handlers': ['console', 'email-admins'],
+            'propagate': False,
+            'level': 'INFO'
+        },
+        'gunicorn': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'INFO'
+        },
+    }
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
