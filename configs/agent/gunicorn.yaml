@@ -1,0 +1,7 @@
+init_config:
+
+instances:
+  # as set
+  # 1) in your app's config.py (proc_name = <YOUR_APP_NAME>), OR
+  # 2) via CLI (gunicorn --name <YOUR_APP_NAME> your:app)
+  - proc_name: perfdemo.wsgi:application
