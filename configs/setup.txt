@@ -1,0 +1,46 @@
+# setup
+sudo apt-get update
+
+# postgres
+sudo apt-get install -y postgresql postgresql-contrib
+sudo -u postgres psql postgres -c "CREATE DATABASE perfdemo"
+sudo -u postgres psql postgres -c "CREATE ROLE perfdemo WITH LOGIN PASSWORD 'abc123'"
+sudo -u postgres psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE perfdemo TO perfdemo"
+
+# redis and supervisor
+sudo apt-get install -y redis-server
+sudo apt-get install -y supervisor
+
+# install ddagent
+DD_API_KEY=<API_KEY> bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+# sudo /etc/init.d/datadog-agent stop
+# sudo /etc/init.d/datadog-agent start
+
+# vrtualenv
+sudo apt install -y python-pip
+sudo pip install virtualenv
+virtualenv venv
+source ~/venv/bin/activate
+cd venv
+
+git clone https://github.com/burnsie7/perfdemo.git
+cd perfdemo
+
+
+pip install -r requirements.txt
+
+sudo python manage.py makemigrations
+sudo python manage.py migrate
+sudo python manage.py init_db
+
+sudo cp configs/perfdemo.conf /etc/supervisor/conf.d
+sudo cp configs/agent/conf.d/* /etc/dd-agent/conf.d/
+sudo cp configs/agent/datadog.conf /etc/dd-agent/
+sudo mkdir /var/log/perfdemo
+sudo chmod a+x /var/log/supervisor
+sudo chmod a+x /var/log/perfdemo
+sudo update-rc.d supervisor defaults
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl restart all
+sudo /etc/init.d/datadog-agent restart
