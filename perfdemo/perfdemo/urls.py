@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^api/order/$', demo_api.OrderListView.as_view(), name='order-list'),
     url(r'^api/order/create/$', demo_api.OrderCreateView.as_view(), name='order-create'),
     url(r'^api/order/(?P<pk>[0-9]+)/$', demo_api.OrderDetailView.as_view(), name='order-detail'),
+    url(r'^api/long/$', demo_api.LongQueryView.as_view(), name='long-query'),
+    url(r'^api/error/$', demo_api.ThrowErrorView.as_view(), name='throw-error'),
 
     url(r'^admin/', admin.site.urls),
     url(r'^$', IndexView.as_view(), name='index'),

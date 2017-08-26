@@ -41,3 +41,8 @@ class Order(models.Model):
     name = models.CharField(max_length=1024)
     widget = models.ForeignKey(Widget, on_delete=models.CASCADE)
     order_date = models.DateField(default=datetime.date.today)
+
+    def random_index(self):
+        count = self.aggregate(count=Count('id'))['count']
+        random_index = randint(0, count - 1)
+        return random_index
