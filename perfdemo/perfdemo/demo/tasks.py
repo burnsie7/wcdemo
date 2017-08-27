@@ -1,13 +1,12 @@
 import datetime
 import decimal
 import logging
+import math
 import random
 import string
 import time
 
 import requests
-
-from math import sin
 
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
@@ -52,12 +51,10 @@ def create_order():
 def get_all_orders():
     requests.get('http://127.0.0.1:8000/api/order/')
 
-
 @task(name="get_order")
 def get_order(oid):
-    url = 'http://127.0.0.1:8000/api/order/{}'.format(oid)
+    url = 'http://127.0.0.1:8000/api/order/?id={}'.format(oid)
     requests.get(url)
-
 
 @task(name="not_found")
 def not_found():
@@ -75,22 +72,21 @@ def long_query():
 
 
 @task(name="traffic_spike")
-def traffic_spike():
-    oid = Order.object.random_index()
-    for i in range(random.randint(1,5) * 1000):
+def traffic_spike(num):
+    oid = get_random_order_id()
+    for i in range(random.randint(1,5) * num):
         get_order.delay(oid)
-
 
 @periodic_task(
     run_every=(crontab(minute='*')),  # crontab(minute=0, hour=5) to run every day midnight EST
     name="request_nonsense",
     ignore_result=True
-)
+
 def request_nonsense():
     now = datetime.datetime.now()
     h = now.hour
     m = now.minute
-
+    mag = 20
     degrees = ((60 * h + m) // 4) + random.randint(1, 10)
     y = math.sin(math.radians(degrees)) * random.random() * 2
 
@@ -103,18 +99,26 @@ def request_nonsense():
     if y < 0:
         y = y / 4
 
-    y = (y + 10) * 10
+    y = int(math.floor((y + 10) * mag))
 
-    oid = Order.object.random_index()
-    for i in y:
-        if i % 35 == 0:
-            traffic_spike.delay()
-        if i % 21 == 0:
+    trick = random.randint(1, 100)
+    if trick == 33:
+        traffic_spike.delay(mag*2)
+    if trick == 21:
+        for i in range(mag):
             long_query.delay()
+    if trick == 55:
+        for i in range(mag):
+            throw_error.delay()
+
+    oid = get_random_order_id()
+    sleep_time = 60.0 / y
+    for i in range(1, y):
         if i % 11 == 0:
-            do_error.delay()
-        if i % 7:
+            throw_error.delay()
+        if i % 7 == 0:
             not_found.delay()
-        if i % 5:
+        if i % 5 == 0:
             get_all_orders.delay()
-        get_order.delay(args=[oid])
+        get_order.delay(oid)
+        time.sleep(sleep_time))

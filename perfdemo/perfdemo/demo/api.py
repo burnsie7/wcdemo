@@ -86,13 +86,14 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
 class LongQueryView(generics.GenericAPIView):
 
     def get(self, request):
-        return Order.objects.filter(name__startswith='z'
+        Order.objects.filter(name__startswith='z'
             ).exclude(name__contains='f'
             ).filter(widget__name__contains='x'
             ).filter(widget__order__name__contains='s')
+        return Response({'Good': 'Ran Query'}, status=status.HTTP_200_OK)
 
 
 class ThrowErrorView(generics.GenericAPIView):
 
     def get(self, request):
-        raise ObjectDoesNotExist
+        raise Anything
