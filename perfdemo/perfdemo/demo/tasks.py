@@ -83,15 +83,15 @@ def traffic_spike(num):
     ignore_result=True
 
 def request_nonsense():
-    now = datetime.datetime.now()
+    now = datetime.datetime.now() - datetime.timedelta(hours=6)  # Offset for UTC
     h = now.hour
     m = now.minute
-    mag = 20
+    mag = 200
     degrees = ((60 * h + m) // 4) + random.randint(1, 10)
     y = math.sin(math.radians(degrees)) * random.random() * 2
 
     dow = now.weekday()
-    if dow == 0 or dow == 6:
+    if dow == 5 or dow == 6:  # Looks like AWS uses 0 for monday
         y = y / (1.5+random.random())
     else:
         y = y * (1.5+random.random())
