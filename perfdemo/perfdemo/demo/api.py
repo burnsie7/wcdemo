@@ -81,3 +81,19 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         order_id = self.request.data.get('id', None)
         return Order.objects.filter(id=order_id)
+
+
+class LongQueryView(generics.GenericAPIView):
+
+    def get(self, request):
+        Order.objects.filter(name__startswith='z'
+            ).exclude(name__contains='f'
+            ).filter(widget__name__contains='x'
+            ).filter(widget__order__name__contains='s')
+        return Response({'Good': 'Ran Query'}, status=status.HTTP_200_OK)
+
+
+class ThrowErrorView(generics.GenericAPIView):
+
+    def get(self, request):
+        raise Anything
