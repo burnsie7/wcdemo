@@ -1,0 +1,105 @@
+sudo gcloud config set project fetch-171516
+sudo gcloud compute instances list
+sudo gcloud config set compute/zone us-west1-c
+sudo gcloud container clusters list
+sudo gcloud container clusters create wcdemo2
+sudo gcloud container clusters get-credentials wcdemo2
+
+kubectl get nodes
+git clone git@github.com:burnsie7/wcdemo.git
+cd wcdemo
+cd postgres
+docker login
+docker build --no-cache -t burnsie7/postgres .
+docker push burnsie7/postgres
+
+#  trying to use celery as part of the app image
+#  cd ../celery_worker
+#  docker build --no-cache -t burnsie7/celery_worker .
+#  docker push burnsie7/celery_worker
+
+#  cd ../celery_beat
+#  docker build --no-cache -t burnsie7/celery_beat .
+#  docker push burnsie7/celery_beat
+
+# not building redis at this time
+# cd ../redis
+# docker build --no-cache -t burnsie7/redis
+
+cd ../perfdemo
+docker build -t burnsie7/wcdemo .
+docker push burnsie7/wcdemo
+
+cd  ../config/k8s/postgres
+# edit replication controller yaml
+# we may want to use persistent storage in the future
+sudo kubectl create -f replication-controller.yaml
+sudo kubectl create -f service.yaml
+
+kubectl get rc
+kubectl get pods
+
+kubectl describe pod <pod-id>
+kubectl logs <pod-id>
+
+kubectl get svc
+kubectl describe svc database
+
+cd ../redis
+sudo kubectl create -f redis.yaml
+
+cd ../app
+sudo kubectl create -f replication-controller.yaml
+sudo kubectl create -f service.yaml
+
+cd ../celery_beat
+sudo kubectl create -f celery_beat.yaml
+
+cd ../celery_worker
+sudo kubectl create -f celery_worker.yaml
+
+cd kubernetes/app
+# edit file
+sudo kubectl create -f replication-controller.yaml
+kubectl get pods
+
+kubectl describe pod <pod-id>
+kubectl logs <pod-id>
+
+cd kubernetes/app
+kubectl create -f service.yaml
+kubectl get svc
+
+kubectl exec wcdemo-7jch6 -- python /perfdemo/manage.py migrate
+kubectl exec -it wcdemo-7jch6 -- python /perfdemo/manage.py createsuperuser
+kubectl exec -it wcdemo-7jch6 -- python /perfdemo/manage.py initdb
+
+kubectl exec celery-beat-tt1qp -- ping redis.default.svc.cluster.local
+
+cd kubernetes/ddagent
+sudo kubectl create -f ddagent.yaml
+kubectl get pods
+
+kubectl describe pod <pod-id>
+kubectl logs <pod-id>
+
+sudo kubectl create -f service.yaml
+
+
+kubectl exec -it dd-agent-0m4qh /etc/init.d/datadog-agent flare 106594
+
+kubectl exec -it dd-agent-07wlb tail /var/log/datadog/trace-agent.log
+
+kubectl exec -it  dd-agent-07wlb echo $HOSTNAME
+
+
+##### redeploy
+
+kubectl delete rc celery-task
+kubectl delete rc celery-beat
+kubectl delete rc wcdemo
+kubectl delete svc wcdemo
+sudo kubectl create -f wcdemo/wcdemo.yaml
+sudo kubectl create -f wcdemo/service.yaml
+sudo kubectl create -f celery_worker/celery_worker.yaml
+sudo kubectl create -f celery_beat/celery_beat.yaml

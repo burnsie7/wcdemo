@@ -22,6 +22,10 @@ logger = logging.getLogger(__name__)
 rand_str = lambda l: ''.join([random.choice(string.lowercase) for i in xrange(l)])
 
 
+def get_random_order_id():
+    return random.choice(Order.objects.all()).id
+
+
 @task(name="create_maker")
 def create_maker():
     name = rand_str(20)
@@ -49,26 +53,26 @@ def create_order():
 
 @task(name="get_all_orders")
 def get_all_orders():
-    requests.get('http://127.0.0.1:8000/api/order/')
+    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/')
 
 @task(name="get_order")
 def get_order(oid):
-    url = 'http://127.0.0.1:8000/api/order/?id={}'.format(oid)
+    url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/?id={}'.format(oid)
     requests.get(url)
 
 @task(name="not_found")
 def not_found():
-    requests.get('http://127.0.0.1:8000/not/found/')
+    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/not/found/')
 
 
 @task(name="throw_error")
 def throw_error():
-    requests.get('http://127.0.0.1:8000/api/error/')
+    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/error/')
 
 
 @task(name="long_query")
 def long_query():
-    requests.get('http://127.0.0.1:8000/api/long/')
+    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/long/')
 
 
 @task(name="traffic_spike")
@@ -81,7 +85,7 @@ def traffic_spike(num):
     run_every=(crontab(minute='*')),  # crontab(minute=0, hour=5) to run every day midnight EST
     name="request_nonsense",
     ignore_result=True
-
+)
 def request_nonsense():
     now = datetime.datetime.now() - datetime.timedelta(hours=6)  # Offset for UTC
     h = now.hour
@@ -121,4 +125,4 @@ def request_nonsense():
         if i % 5 == 0:
             get_all_orders.delay()
         get_order.delay(oid)
-        time.sleep(sleep_time))
+        time.sleep(sleep_time)
