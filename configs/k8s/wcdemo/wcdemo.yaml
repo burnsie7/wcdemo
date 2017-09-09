@@ -5,7 +5,7 @@ metadata:
   labels:
     name: wcdemo
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     name: wcdemo
   template:

@@ -48,9 +48,12 @@ kubectl describe svc database
 cd ../redis
 sudo kubectl create -f redis.yaml
 
-cd ../app
+cd ../wcdemo
 sudo kubectl create -f replication-controller.yaml
 sudo kubectl create -f service.yaml
+
+cd ../kube_state
+sudo kubectl create -f kube-state-metrics.yaml
 
 cd ../celery_beat
 sudo kubectl create -f celery_beat.yaml
@@ -58,7 +61,7 @@ sudo kubectl create -f celery_beat.yaml
 cd ../celery_worker
 sudo kubectl create -f celery_worker.yaml
 
-cd kubernetes/app
+cd kubernetes/wcdemo
 # edit file
 sudo kubectl create -f replication-controller.yaml
 kubectl get pods
@@ -86,20 +89,40 @@ kubectl logs <pod-id>
 sudo kubectl create -f service.yaml
 
 
-kubectl exec -it dd-agent-0m4qh /etc/init.d/datadog-agent flare 106594
+kubectl exec -it dd-agent-gbq53 /etc/init.d/datadog-agent flare 107870
 
 kubectl exec -it dd-agent-07wlb tail /var/log/datadog/trace-agent.log
 
-kubectl exec -it  dd-agent-07wlb echo $HOSTNAME
+/var/log/datadog/trace-agent.log
 
+kubectl exec celery-beat-tt1qp -- ping redis.default.svc.cluster.local
 
 ##### redeploy
+
+cd /Users/benjaminburns/repos/wcdemo/perfdemo
+docker rmi burnsie7/wcdemo
+docker build -t burnsie7/wcdemo .
+docker push burnsie7/wcdemo
+
+/Users/benjaminburns/repos/wcdemo/configs/agent
+docker rmi burnsie7/dd1
+docker build -t burnsie7/dd1 .
+docker push burnsie7/dd1
 
 kubectl delete rc celery-task
 kubectl delete rc celery-beat
 kubectl delete rc wcdemo
 kubectl delete svc wcdemo
+kubectl delete ds dd-agent
+kubectl delete svc dd-agent
+
+cd /Users/benjaminburns/repos/wcdemo/configs/k8s
 sudo kubectl create -f wcdemo/wcdemo.yaml
 sudo kubectl create -f wcdemo/service.yaml
 sudo kubectl create -f celery_worker/celery_worker.yaml
 sudo kubectl create -f celery_beat/celery_beat.yaml
+sudo kubectl create -f agent/dd-agent.yaml
+sudo kubectl create -f agent/service.yaml
+
+
+kubectl exec -it dd-agent-f12bt /etc/init.d/datadog-agent info

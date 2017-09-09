@@ -5,7 +5,7 @@ metadata:
   labels:
     app: celery-task
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     name: celery-task
   template:

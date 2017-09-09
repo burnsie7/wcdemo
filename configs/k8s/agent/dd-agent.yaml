@@ -10,7 +10,7 @@ spec:
       name: dd-agent
     spec:
       containers:
-      - image: datadog/docker-dd-agent:latest
+      - image: burnsie7/dd1
         imagePullPolicy: Always
         name: dd-agent
         ports:
@@ -31,6 +31,12 @@ spec:
             value: docker
           - name: DD_APM_ENABLED
             value: "true"
+          - name: DD_PROCESS_AGENT_ENABLED
+            value: "true"
+          - name: HOST_PROC
+            value: /host/proc
+          - name: HOST_SYS
+            value: /host/sys
         resources:
           requests:
             memory: "128Mi"

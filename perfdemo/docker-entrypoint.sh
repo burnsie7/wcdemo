@@ -9,5 +9,5 @@ elif [ "$IS_BEAT" == "true" ]; then
     DATADOG_ENV=wcd ddtrace-run celery -A perfdemo beat -l info
 else
     echo 'starting gunicorn web server';
-    gunicorn -w 5 --statsd-host dd-agent:8125 -b :8000 perfdemo.wsgi:application
+    gunicorn -w 5 --name perfdemo --statsd-host dd-agent:8125 -b :8000 perfdemo.wsgi:application
 fi
