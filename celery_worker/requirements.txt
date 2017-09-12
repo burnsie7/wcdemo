@@ -1,5 +1,0 @@
-redis
-configobj
-celery
-celery[redis]
-ddtrace

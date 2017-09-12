@@ -5,12 +5,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-
-MY_POD_NAME = os.getenv('MY_POD_NAME', 'local')
-MY_POD_NAMESPACE = os.getenv('MY_POD_NAMESPACE', 'local')
-MY_POD_IP = os.getenv('MY_POD_IP', 'localhost')
-MY_SVC_NAMESPACE = 'wcdemo.default.svc.cluster.local'  # TODO: dynamic
-MY_SVC_PORT= '80'  # TODO: dynamic
+MY_SVC_NAMESPACE = os.getenv('SERVICE_URL', '127.0.0.1')  # TODO: dynamic
+MY_SVC_PORT= os.getenv('SERVICE_PORT', '80')  # TODO: dynamic
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -125,8 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # CELERY STUFF
-BROKER_URL = 'redis://redis.default.svc.cluster.local:6379'
-CELERY_RESULT_BACKEND = 'redis://redis.default.svc.cluster.local:6379'
+BROKER_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
