@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: celery-task
+  labels:
+    app: celery-task
+spec:
+  replicas: 3
+  selector:
+    name: celery-task
+  template:
+    metadata:
+      labels:
+        name: celery-task
+    spec:
+      containers:
+        - name: celery-task
+          image: burnsie7/wcdemo
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: DATABASE_NAME
+              value: app_db
+            - name: DATABASE_USER
+              value: app_db_user
+            - name: DATABASE_PASSWORD
+              value: app_db_pw
+            - name: IS_WORKER
+              value: "true"
+          ports:
+            - containerPort: 5672

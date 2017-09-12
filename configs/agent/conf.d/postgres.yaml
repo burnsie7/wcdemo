@@ -1,7 +1,7 @@
 init_config:
 
 instances:
-  - host: localhost
+  - host: database.default.svc.cluster.local
     port: 5432
-    username: perfdemo
-    password: abc123
+    username: app_db_user
+    password: app_db_pw

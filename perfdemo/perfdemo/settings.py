@@ -3,19 +3,25 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.dirname(os.path.abspath(__file__)) + '/static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+
+MY_POD_NAME = os.getenv('MY_POD_NAME', 'local')
+MY_POD_NAMESPACE = os.getenv('MY_POD_NAMESPACE', 'local')
+MY_POD_IP = os.getenv('MY_POD_IP', 'localhost')
+MY_SVC_NAMESPACE = 'wcdemo.default.svc.cluster.local'  # TODO: dynamic
+MY_SVC_PORT= '80'  # TODO: dynamic
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=_c22@6n=x+cl^1#k=a)r=hw^jb@e33hsm62&x!ksnguuag)%9'
+SECRET_KEY = '=_c22@6n=x+cl^1#k=a)r=hw^jb@e33hsm62&x!ksnguuag)%9'  # TODO: env var
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['*']  # TODO: Restrict to proper hosts
 
 
 # Application definition
@@ -82,19 +88,22 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'perfdemo',
-        'USER': 'perfdemo',
-        'PASSWORD': 'abc123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql_psycopg2'),
+        'NAME': os.getenv('DATABASE_NAME', 'perfdemo'),  # TODO: Fix all of these defaults
+        'USER': os.getenv('DATABASE_USER', 'perfdemo'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'abc123'),
+        'HOST': os.getenv('DATABASE_SERVICE_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DATABASE_SERVICE_PORT', 5432),
     }
 }
 
 DATADOG_TRACE = {
-    'DEFAULT_SERVICE': 'wcdemo',
-    'TAGS': {'env': 'wcd'},
-    'ENABLED': True,
+    'DEFAULT_SERVICE': os.getenv('DATADOG_SERVICE_NAME', 'wcdemo'),
+    'DEFAULT_DATABASE_PREFIX': os.getenv('DATADOG_DATABASE_NAME', 'wcdemo'),
+    'TAGS': {'env': os.getenv('DATADOG_SERVICE_TAG', 'wcd')},
+    'ENABLED': os.getenv('DATADOG_TRACE_ENABLED', True),
+    'AGENT_HOSTNAME': os.getenv('DATADOG_TRACE_AGENT_HOSTNAME', 'dd-agent'),
+    'AGENT_PORT': os.getenv('DATADOG_TRACE_AGENT_PORT', 8126),
 }
 
 # Password validation
@@ -116,8 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # CELERY STUFF
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+BROKER_URL = 'redis://redis.default.svc.cluster.local:6379'
+CELERY_RESULT_BACKEND = 'redis://redis.default.svc.cluster.local:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -141,7 +150,3 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-try:
-    from perfdemo.local_settings import *
-except ImportError:
-    print('Could not import local settings')
