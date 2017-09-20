@@ -24,3 +24,5 @@ Then I resolve postgres url (DNS name) from the Django settings file this way:
 
 postgres_host_env_name = os.environ['POSTGRES_HOST_ENV_NAME']
 postgres_host = os.environ[postgres_host_env_name]
+
+Test comment
