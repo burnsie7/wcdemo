@@ -5,19 +5,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MY_SVC_NAMESPACE = os.getenv('SERVICE_URL', '127.0.0.1')  # TODO: dynamic
-MY_SVC_PORT= os.getenv('SERVICE_PORT', '8000')  # TODO: dynamic
+MY_SVC_NAMESPACE = os.getenv('SERVICE_URL', '127.0.0.1')
+MY_SVC_PORT= os.getenv('SERVICE_PORT', '8000')
+REQ_MULTIPLE = os.getenv('REQUEST_MULTIPLE', 100)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=_c22@6n=x+cl^1#k=a)r=hw^jb@e33hsm62&x!ksnguuag)%9'  # TODO: env var
+SECRET_KEY = '=_c22@6n=x+cl^1#k=a)r=hw^jb@e33hsm62&x!ksnguuag)%9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # TODO: Restrict to proper hosts
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -85,10 +86,10 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql_psycopg2'),
-        'NAME': os.getenv('DATABASE_NAME', 'wcdemo'),  # TODO: Fix all of these defaults
+        'NAME': os.getenv('DATABASE_NAME', 'wcdemo'),
         'USER': os.getenv('DATABASE_USER', 'wcdemo'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'wcdemo'),
-        'HOST': os.getenv('DATABASE_SERVICE_HOST', '172.31.7.97'),
+        'HOST': os.getenv('DATABASE_SERVICE_HOST', '127.0.0.1'),
         'PORT': os.getenv('DATABASE_SERVICE_PORT', 5432),
     }
 }
@@ -121,8 +122,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # CELERY STUFF
-BROKER_URL = os.getenv('REDIS_URL', 'redis://172.31.0.219')
-CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://172.31.0.219')
+BROKER_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://127.0.0.1')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
