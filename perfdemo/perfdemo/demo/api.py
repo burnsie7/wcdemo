@@ -31,7 +31,7 @@ class MakerDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MakerSerializer
 
     def get_queryset(self):
-        maker_id = self.request.data.get('id', None)
+        maker_id = self.kwargs['pk']
         return Maker.objects.filter(id=maker_id)
 
 
@@ -55,7 +55,7 @@ class WidgetDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WidgetSerializer
 
     def get_queryset(self):
-        widget_id = self.request.data.get('id', None)
+        widget_id = self.kwargs['pk']
         return Widget.objects.filter(id=widget_id)
 
 
@@ -79,7 +79,7 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        order_id = self.request.data.get('id', None)
+        order_id = self.kwargs['pk']
         return Order.objects.filter(id=order_id)
 
 

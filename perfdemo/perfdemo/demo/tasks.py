@@ -57,7 +57,7 @@ def get_all_orders():
 
 @task(name="get_order")
 def get_order(oid):
-    url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/?id={}'.format(oid)
+    url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/{}/'.format(oid)
     requests.get(url)
 
 @task(name="not_found")
