@@ -6,7 +6,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MY_SVC_NAMESPACE = os.getenv('SERVICE_URL', '127.0.0.1')  # TODO: dynamic
-MY_SVC_PORT= os.getenv('SERVICE_PORT', '80')  # TODO: dynamic
+MY_SVC_PORT= os.getenv('SERVICE_PORT', '8000')  # TODO: dynamic
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -85,10 +85,10 @@ REST_FRAMEWORK = {
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql_psycopg2'),
-        'NAME': os.getenv('DATABASE_NAME', 'perfdemo'),  # TODO: Fix all of these defaults
-        'USER': os.getenv('DATABASE_USER', 'perfdemo'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'abc123'),
-        'HOST': os.getenv('DATABASE_SERVICE_HOST', '127.0.0.1'),
+        'NAME': os.getenv('DATABASE_NAME', 'wcdemo'),  # TODO: Fix all of these defaults
+        'USER': os.getenv('DATABASE_USER', 'wcdemo'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'wcdemo'),
+        'HOST': os.getenv('DATABASE_SERVICE_HOST', '172.31.7.97'),
         'PORT': os.getenv('DATABASE_SERVICE_PORT', 5432),
     }
 }
@@ -98,7 +98,7 @@ DATADOG_TRACE = {
     'DEFAULT_DATABASE_PREFIX': os.getenv('DATADOG_DATABASE_NAME', 'wcdemo'),
     'TAGS': {'env': os.getenv('DATADOG_SERVICE_TAG', 'wcd')},
     'ENABLED': os.getenv('DATADOG_TRACE_ENABLED', True),
-    'AGENT_HOSTNAME': os.getenv('DATADOG_TRACE_AGENT_HOSTNAME', 'dd-agent'),
+    'AGENT_HOSTNAME': os.getenv('DATADOG_TRACE_AGENT_HOSTNAME', 'localhost'),
     'AGENT_PORT': os.getenv('DATADOG_TRACE_AGENT_PORT', 8126),
 }
 
@@ -121,8 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # CELERY STUFF
-BROKER_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379')
-CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379')
+BROKER_URL = os.getenv('REDIS_URL', 'redis://172.31.0.219')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://172.31.0.219')
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

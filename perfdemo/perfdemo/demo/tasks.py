@@ -90,7 +90,7 @@ def request_nonsense():
     now = datetime.datetime.now() - datetime.timedelta(hours=6)  # Offset for UTC
     h = now.hour
     m = now.minute
-    mag = 200
+    mag = 10
     degrees = ((60 * h + m) // 4) + random.randint(1, 10)
     y = math.sin(math.radians(degrees)) * random.random() * 2
 
