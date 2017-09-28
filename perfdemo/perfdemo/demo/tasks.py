@@ -21,20 +21,21 @@ logger = logging.getLogger(__name__)
 
 
 rand_str = lambda l: ''.join([random.choice(string.lowercase) for i in xrange(l)])
+BASE_URL = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT
 
 
 def get_random_order_id():
     return random.choice(Order.objects.all()).id
 
 
-#@task(name="create_maker")
+@task(name="create_maker")
 def create_maker():
     name = rand_str(20)
     desc = rand_str(50)
     Maker.objects.create(name=name, description=desc)
 
 
-#@task(name="create_widget")
+@task(name="create_widget")
 def create_widget():
     name = 'widget_' + rand_str(12)
     desc = rand_str(50)
@@ -44,44 +45,26 @@ def create_widget():
     Widget.objects.create(name=name, description=desc, cost=cost, maker=maker)
 
 
-#@task(name="create_order")
+@task(name="create_order")
 def create_order():
     name = 'order_' + rand_str(12)
     count = Widget.objects.all().count()
     widget = Widget.objects.all()[random.randint(0, count-1)]
     Order.objects.create(name=name, widget=widget)
 
+def get_url(n, ustr):
+    urls = []
+    for i in range(n):
+        urls.append(BASE_URL + ustr)
+    rs = (grequests.get(u) for u in urls)
+    grequests.map(rs)
 
-#@task(name="get_all_orders")
-def get_all_orders():
-    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/')
-
-#@task(name="get_order")
-def get_order(oid):
-    url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/{}/'.format(oid)
-    grequests.get(url)
-
-#@task(name="not_found")
-def not_found():
-    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/not/found/')
-
-
-#@task(name="throw_error")
-def throw_error():
-    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/error/')
-
-
-#@task(name="long_query")
-def long_query():
-    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/long/')
-
-
-#@task(name="traffic_spike")
-def traffic_spike(num):
-    oid = get_random_order_id()
-    for i in range(random.randint(1,5) * num):
-        url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/{}/'.format(oid)
-        grequests.get(url)
+def get_formatted_url(oid, n, ustr):
+    urls = []
+    for i in range(n):
+        urls.append(BASE_URL + ustr + '{}/'.format(oid))
+    rs = (grequests.get(u) for u in urls)
+    grequests.map(rs)
 
 @periodic_task(
     run_every=(crontab(minute='*')),  # crontab(minute=0, hour=5) to run every day midnight EST
@@ -111,20 +94,19 @@ def request_nonsense():
     if trick == 33:
         traffic_spike(mag*2)
     if trick == 21:
-        for i in range(mag):
-            long_query()
+        get_url(mag, '/api/long/')
     if trick == 55:
-        for i in range(mag):
-            throw_error()
+        get_url(mag, '/api/error/')
 
     oid = get_random_order_id()
     sleep_time = 60.0 / y
+
     for i in range(1, y):
+        get_formatted_url(oid, 1, '/api/order/')
         if i % 11 == 0:
-            throw_error()
+            get_url(1, '/api/error/')
         if i % 7 == 0:
-            not_found()
+            get_url(1, '/not/found/')
         if i % 5 == 0:
-            get_all_orders()
-        get_order(oid)
+            get_url(1, '/api/order/')
         time.sleep(sleep_time)
