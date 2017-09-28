@@ -5,6 +5,9 @@ certifi==2017.7.27.1
 chardet==3.0.4
 Django==1.11.4
 djangorestframework==3.6.3
+gevent==1.2.2
+greenlet==0.4.12
+grequests==0.3.0
 gunicorn==19.7.1
 datadog==0.16.0
 ddtrace==0.9.1

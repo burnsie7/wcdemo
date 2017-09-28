@@ -7,6 +7,7 @@ import string
 import time
 
 import requests
+import grequests
 
 from celery.decorators import periodic_task, task
 from celery.task.schedules import crontab
@@ -26,14 +27,14 @@ def get_random_order_id():
     return random.choice(Order.objects.all()).id
 
 
-@task(name="create_maker")
+#@task(name="create_maker")
 def create_maker():
     name = rand_str(20)
     desc = rand_str(50)
     Maker.objects.create(name=name, description=desc)
 
 
-@task(name="create_widget")
+#@task(name="create_widget")
 def create_widget():
     name = 'widget_' + rand_str(12)
     desc = rand_str(50)
@@ -43,7 +44,7 @@ def create_widget():
     Widget.objects.create(name=name, description=desc, cost=cost, maker=maker)
 
 
-@task(name="create_order")
+#@task(name="create_order")
 def create_order():
     name = 'order_' + rand_str(12)
     count = Widget.objects.all().count()
@@ -51,35 +52,36 @@ def create_order():
     Order.objects.create(name=name, widget=widget)
 
 
-@task(name="get_all_orders")
+#@task(name="get_all_orders")
 def get_all_orders():
-    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/')
+    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/')
 
-@task(name="get_order")
+#@task(name="get_order")
 def get_order(oid):
     url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/{}/'.format(oid)
-    requests.get(url)
+    grequests.get(url)
 
-@task(name="not_found")
+#@task(name="not_found")
 def not_found():
-    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/not/found/')
+    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/not/found/')
 
 
-@task(name="throw_error")
+#@task(name="throw_error")
 def throw_error():
-    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/error/')
+    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/error/')
 
 
-@task(name="long_query")
+#@task(name="long_query")
 def long_query():
-    requests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/long/')
+    grequests.get('http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/long/')
 
 
-@task(name="traffic_spike")
+#@task(name="traffic_spike")
 def traffic_spike(num):
     oid = get_random_order_id()
     for i in range(random.randint(1,5) * num):
-        get_order.delay(oid)
+        url = 'http://' + settings.MY_SVC_NAMESPACE + ':' + settings.MY_SVC_PORT + '/api/order/{}/'.format(oid)
+        grequests.get(url)
 
 @periodic_task(
     run_every=(crontab(minute='*')),  # crontab(minute=0, hour=5) to run every day midnight EST
@@ -107,22 +109,22 @@ def request_nonsense():
 
     trick = random.randint(1, 100)
     if trick == 33:
-        traffic_spike.delay(mag*2)
+        traffic_spike(mag*2)
     if trick == 21:
         for i in range(mag):
-            long_query.delay()
+            long_query()
     if trick == 55:
         for i in range(mag):
-            throw_error.delay()
+            throw_error()
 
     oid = get_random_order_id()
     sleep_time = 60.0 / y
     for i in range(1, y):
         if i % 11 == 0:
-            throw_error.delay()
+            throw_error()
         if i % 7 == 0:
-            not_found.delay()
+            not_found()
         if i % 5 == 0:
-            get_all_orders.delay()
-        get_order.delay(oid)
+            get_all_orders()
+        get_order(oid)
         time.sleep(sleep_time)

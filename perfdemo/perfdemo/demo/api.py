@@ -79,6 +79,7 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
+        # TODO: Still returning multiple values for these
         order_id = self.kwargs['pk']
         return Order.objects.filter(id=order_id)
 
