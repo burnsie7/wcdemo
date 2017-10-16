@@ -56,6 +56,7 @@ def create_order():
     widget = Widget.objects.all()[random.randint(0, count-1)]
     Order.objects.create(name=name, widget=widget)
 
+@tracer.wrap(service='request-generator')
 def get_url(n, ustr):
     urls = []
     for i in range(n):
@@ -63,6 +64,7 @@ def get_url(n, ustr):
     rs = (grequests.get(u) for u in urls)
     grequests.map(rs)
 
+@tracer.wrap(service='request-generator')
 def get_formatted_url(oid, n, ustr):
     urls = []
     for i in range(n):
