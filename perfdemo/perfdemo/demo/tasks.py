@@ -16,6 +16,7 @@ from django.conf import settings
 
 from perfdemo.demo.models import Maker, Widget, Order
 
+from ddtrace import tracer
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +29,16 @@ def get_random_order_id():
     return random.choice(Order.objects.all()).id
 
 
-@task(name="create_maker")
+@task(name="create_maker_task")
+@tracer.wrap(service='create-maker')
 def create_maker():
     name = rand_str(20)
     desc = rand_str(50)
     Maker.objects.create(name=name, description=desc)
 
 
-@task(name="create_widget")
+@task(name="create_widget_task")
+@tracer.wrap(service='create-widget')
 def create_widget():
     name = 'widget_' + rand_str(12)
     desc = rand_str(50)
@@ -45,7 +48,8 @@ def create_widget():
     Widget.objects.create(name=name, description=desc, cost=cost, maker=maker)
 
 
-@task(name="create_order")
+@task(name="create_order_task")
+@tracer.wrap(service='create-order')
 def create_order():
     name = 'order_' + rand_str(12)
     count = Widget.objects.all().count()
@@ -68,9 +72,10 @@ def get_formatted_url(oid, n, ustr):
 
 @periodic_task(
     run_every=(crontab(minute='*')),  # crontab(minute=0, hour=5) to run every day midnight EST
-    name="request_nonsense",
+    name="request_nonsense_task",
     ignore_result=True
 )
+@tracer.wrap(service='request-generator')
 def request_nonsense():
     now = datetime.datetime.now() - datetime.timedelta(hours=6)  # Offset for UTC
     h = now.hour
