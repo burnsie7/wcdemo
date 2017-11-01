@@ -108,9 +108,9 @@ def request_nonsense():
 
     oid = get_random_order_id()
     sleep_time = 60.0 / y
-    statsd.histogram('wcd.web_requests', y)
 
     for i in range(1, y):
+        statsd.histogram('wcd.web_requests', i)
         get_formatted_url(oid, 1, '/api/order/')
         if i % 11 == 0:
             get_url(1, '/api/error/')
