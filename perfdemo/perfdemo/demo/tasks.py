@@ -16,6 +16,7 @@ from django.conf import settings
 
 from perfdemo.demo.models import Maker, Widget, Order
 
+from datadog import statsd
 from ddtrace import tracer
 
 logger = logging.getLogger(__name__)
@@ -107,6 +108,7 @@ def request_nonsense():
 
     oid = get_random_order_id()
     sleep_time = 60.0 / y
+    statsd.histogram('wcd.web_requests', y)
 
     for i in range(1, y):
         get_formatted_url(oid, 1, '/api/order/')
@@ -114,6 +116,8 @@ def request_nonsense():
             get_url(1, '/api/error/')
         if i % 7 == 0:
             get_url(1, '/not/found/')
+            get_formatted_url(3, 1, '/api/maker/')
         if i % 5 == 0:
             get_url(1, '/api/order/')
+            get_url(1, '/api/widget/')
         time.sleep(sleep_time)
