@@ -21,6 +21,6 @@ msgpack-python==0.4.8
 requests==2.18.4
 setproctitle==1.1.10
 simplejson==3.11.1
-urllib3==1.22
+urllib3==1.24.2
 vine==1.1.4
 wrapt==1.10.11
